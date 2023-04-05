@@ -1,0 +1,45 @@
+﻿@using Resit_Project.Models;
+
+@model IEnumerable<ApplicationUser>
+
+@{
+    ViewBag.Title = "Manage User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-sm-12">
+        <h2>@ViewBag.Title</h2>
+
+        <hr />
+        @Html.ActionLink("Register", "Register", "Account")
+
+        <br /><br />
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>User Name</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.UserName</td>
+                        <td>@item.FullName</td>
+                        <td>
+                            @Html.ActionLink("Edit", "Edit", new { Id = item.Id }, null) |
+                            @Html.ActionLink("Edit Role", "Edit Role", new { Id = item.Id }, null) |
+                            @Html.ActionLink("Delete", "Delete", new { Id = item.Id }, null)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

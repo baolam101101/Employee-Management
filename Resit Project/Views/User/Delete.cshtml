@@ -1,0 +1,27 @@
+﻿@model Microsoft.AspNet.Identity.EntityFramework.IdentityUser
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>@ViewBag.Title</h2>
+
+        <hr />
+
+        <div class="text-center">
+            <h5>Do you want to delete <b>@Model.UserName</b></h5>
+
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary("", new { @class = "text-danger" })
+
+                <button type="submit" class="btn btn-primary">Accept</button>
+                <a href="@Url.Action("Index")" class="btn btn-default">Cancel</a>
+            }
+        </div>
+    </div>
+</div>
