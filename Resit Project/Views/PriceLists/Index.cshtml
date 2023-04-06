@@ -12,18 +12,15 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Image)
+            @Html.DisplayNameFor(model => model.Stage)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Machine)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Stage)
-        </th>
-        <th>
             @Html.DisplayNameFor(model => model.Price)
         </th>
-         
+
         <th></th>
     </tr>
 
@@ -31,13 +28,10 @@
     {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Image)
+                @Html.DisplayFor(modelItem => item.Stage)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Machine)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Stage)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)

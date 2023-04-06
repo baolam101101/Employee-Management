@@ -46,7 +46,7 @@ namespace Resit_Project.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "PricelistId,Image,Machine,Stage,Price")] PriceList priceList, HttpPostedFileBase image)
+        public ActionResult Create([Bind(Include = "PricelistId,Machine,Stage,Price")] PriceList priceList, HttpPostedFileBase image)
         {
             if (image != null && image.ContentLength > 0)
             {
@@ -88,7 +88,7 @@ namespace Resit_Project.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "PricelistId,Image,Machine,Stage,Price")] PriceList priceList, HttpPostedFileBase editImage)
+        public ActionResult Edit([Bind(Include = "PricelistId,Machine,Stage,Price")] PriceList priceList, HttpPostedFileBase editImage)
         {
             if (ModelState.IsValid)
             {

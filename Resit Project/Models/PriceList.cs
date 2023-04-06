@@ -16,13 +16,11 @@ namespace Resit_Project.Models
         }
         [Key]
         public int PricelistId { get; set; }
+        public string Stage { get; set; }
+        public Machine Machine { get; set; }
+        public int Price { get; set; }
         public byte[] Image { get; set; }
         public string UrlImage { get; set; }
-        public Machine Machine { get; set; }
-        [Required]
-        public string Stage { get; set; }
-        [Required]
-        public int Price { get; set; }
 
         public virtual ICollection<CombineStage> CombineStages { get; set; }
 
