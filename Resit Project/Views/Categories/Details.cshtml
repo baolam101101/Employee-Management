@@ -4,21 +4,42 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
-
+<h2 class="text-center">Details Code</h2>
+<h3 class="text-center">
+    @Html.DisplayFor(model => model.Name)
+</h3>
 <div>
-    <h4>Category</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-
-    </dl>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>
+                    <a>Stage</a>
+                </th>
+                <th>
+                    <a>Machine</a>
+                </th>
+                <th>
+                    <a>Price</a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var price in ViewBag.priceLists)
+            {
+                <tr>
+                    <td>
+                        @price.Stage
+                    </td>
+                    <td>
+                        @price.Machine
+                    </td>
+                    <td>
+                        @price.Price.ToString("#,##0") ¢
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.CateId }) |

@@ -11,16 +11,11 @@
 
         <h2>@ViewBag.Title</h2>
 
-        <hr />
-        @Html.ActionLink("Create Role", "Create", null, new { @class = "btn btn-primary" })
-
-        <br /><br />
-
+        <hr /> 
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Role</th>
-                    <th>Action</th>
                 </tr>
             </thead>
 
@@ -29,7 +24,6 @@
                 {
                     <tr>
                         <td>@item.Name</td>
-                        <td>@Html.ActionLink("Delete", "Delete", new { id = item.Id })</td>
                     </tr>
                 }
             </tbody>

@@ -9,7 +9,7 @@ using System.Web.Mvc;
 using Resit_Project.Models;
 
 namespace Resit_Project.Controllers
-{
+{   
     public class PriceListsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -35,15 +35,17 @@ namespace Resit_Project.Controllers
             return View(priceList);
         }
 
+        private bool PricelistDuplicate(PriceList priceList)
+        {
+            return db.PriceLists.Any(p => p.Stage == priceList.Stage && p.Machine == priceList.Machine);
+        }
+
         // GET: PriceLists/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: PriceLists/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "PricelistId,Machine,Stage,Price")] PriceList priceList, HttpPostedFileBase image)
@@ -52,14 +54,16 @@ namespace Resit_Project.Controllers
             {
                 priceList.Image = new byte[image.ContentLength];
                 image.InputStream.Read(priceList.Image, 0, image.ContentLength);
-                string fileName = System.IO.Path.GetFileName(image.FileName);
-                string urlImage = Server.MapPath("~/Image/" + fileName);
-
-                priceList.UrlImage = "Image/" + fileName;
             }
-                
+
             if (ModelState.IsValid)
             {
+                if (PricelistDuplicate(priceList))
+                {
+                    ModelState.AddModelError("", "A stage of using this machine already exists!");
+                    return View(priceList);
+                }
+
                 db.PriceLists.Add(priceList);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -68,51 +72,64 @@ namespace Resit_Project.Controllers
             return View(priceList);
         }
 
-        // GET: PriceLists/Edit/5
         public ActionResult Edit(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             PriceList priceList = db.PriceLists.Find(id);
             if (priceList == null)
             {
                 return HttpNotFound();
             }
-            return View(priceList);
+
+            return View(priceList); 
         }
 
-        // POST: PriceLists/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "PricelistId,Machine,Stage,Price")] PriceList priceList, HttpPostedFileBase editImage)
+        public ActionResult Edit(int? id, [Bind(Include = "PricelistId,Machine,Stage,Price")] PriceList priceList, HttpPostedFileBase image)
         {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            PriceList priceListToUpdate = db.PriceLists.Find(id);
+            if (priceListToUpdate == null)
+            {
+                return HttpNotFound();
+            }
+
             if (ModelState.IsValid)
             {
-                PriceList modifyPriceList = db.PriceLists.Find(priceList.PricelistId);
-                if (modifyPriceList != null)
+                if (PricelistDuplicate(priceList))
                 {
-                    if (editImage != null && editImage.ContentLength > 0)
-                    {
-                        modifyPriceList.Image = new byte[editImage.ContentLength];
-                        editImage.InputStream.Read(modifyPriceList.Image, 0, editImage.ContentLength);
-                        string fileName = System.IO.Path.GetFileName(editImage.FileName);
-                        string urlImage = Server.MapPath("~/Image/" + fileName);
-                        editImage.SaveAs(urlImage);
+                    ModelState.AddModelError("", "A stage of using this machine already exists!");
+                    return View(priceList);
+                }
+                // Update existing properties
+                priceListToUpdate.Machine = priceList.Machine;
+                priceListToUpdate.Stage = priceList.Stage;
+                priceListToUpdate.Price = priceList.Price;
 
-                        modifyPriceList.UrlImage = "Image/" + fileName;
-                    }
+                // Update image if it was changed
+                if (image != null && image.ContentLength > 0)
+                {
+                    priceListToUpdate.Image = new byte[image.ContentLength];
+                    image.InputStream.Read(priceListToUpdate.Image, 0, image.ContentLength);
                 }
 
-                db.Entry(priceList).State = EntityState.Modified;
+                db.Entry(priceListToUpdate).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View(priceList);
+
+            return View(priceListToUpdate); // Pass the PriceList object to the view
         }
+
 
         // GET: PriceLists/Delete/5
         public ActionResult Delete(int? id)

@@ -19,12 +19,18 @@
 
         protected override void Seed(ApplicationDbContext context)
         {
-            if (!context.Users.Any())
-                {
-                CreateUser(context, "admin@gmail.com", "1", "Admin");
-                    
+            if (!context.Roles.Any())
+            {
                 CreateRole(context, "Admin");
+                CreateRole(context, "Staff");
+            }
+
+            if (!context.Users.Any())
+            {
+                CreateUser(context, "admin@gmail.com", "1", "Admin");
+                CreateUser(context, "staff@gmail.com", "1", "Staff");
                 AddUserToRole(context, "admin@gmail.com", "Admin");
+                AddUserToRole(context, "staff@gmail.com", "Staff");
             }
         }
 

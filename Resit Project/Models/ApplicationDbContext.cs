@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Resit_Project.Models;
-using System.Data.Entity;
 
 namespace Resit_Project.Models
 
@@ -25,8 +24,8 @@ namespace Resit_Project.Models
 
         public DbSet<Staff> Staffs { get; set; }
 
-        public DbSet<CombineStage> CombineStages { get; set; }
-
         public DbSet<PriceList> PriceLists { get; set; }
+
+        public DbSet<Work> Works { get; set; }
     }
 }

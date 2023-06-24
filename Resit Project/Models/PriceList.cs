@@ -8,22 +8,22 @@ using Owin;
 
 namespace Resit_Project.Models
 {
-    public class PriceList
+    public partial class PriceList
     {
         public PriceList()
         {
-            CombineStages = new HashSet<CombineStage>();
+            Categories = new HashSet<Category>();
         }
         [Key]
         public int PricelistId { get; set; }
+        [Required]
         public string Stage { get; set; }
         public Machine Machine { get; set; }
+        [Required]
         public int Price { get; set; }
         public byte[] Image { get; set; }
-        public string UrlImage { get; set; }
 
-        public virtual ICollection<CombineStage> CombineStages { get; set; }
-
+        public virtual ICollection<Category> Categories { get; set; }
     }
     public enum Machine
     {

@@ -35,21 +35,35 @@ namespace Resit_Project.Controllers
             return View(staff);
         }
 
+        private bool IsDuplicateStaff(Staff staff)
+        {
+            return db.Staffs.Any(s => s.FullName == staff.FullName && s.Birthday == staff.Birthday);
+        }
+
         // GET: Staffs/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Staffs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "StaffId,FullName,Gender,Birthday,Address,StartDate,Image")] Staff staff)
+        public ActionResult Create([Bind(Include = "StaffId,FullName,Gender,Birthday,Address,StartDate")] Staff staff, HttpPostedFileBase image)
         {
+            if (image != null && image.ContentLength > 0)
+            {
+                staff.Image = new byte[image.ContentLength];
+                image.InputStream.Read(staff.Image, 0, image.ContentLength);
+            }
+
             if (ModelState.IsValid)
             {
+                if (IsDuplicateStaff(staff))
+                {
+                    ModelState.AddModelError("", "A staff with the same name and birthday already exists!");
+                    return View(staff);
+                }
+
                 db.Staffs.Add(staff);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -57,7 +71,6 @@ namespace Resit_Project.Controllers
 
             return View(staff);
         }
-
         // GET: Staffs/Edit/5
         public ActionResult Edit(int? id)
         {
@@ -73,21 +86,48 @@ namespace Resit_Project.Controllers
             return View(staff);
         }
 
-        // POST: Staffs/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "StaffId,FullName,Gender,Birthday,Address,StartDate,Image")] Staff staff)
+        public ActionResult Edit(int? id, [Bind(Include = "StaffId,FullName,Gender,Birthday,Address,StartDate")] Staff staff, HttpPostedFileBase image)
         {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            Staff staffToUpdate = db.Staffs.Find(id);
+            if (staffToUpdate == null)
+            {
+                return HttpNotFound();
+            }
+
             if (ModelState.IsValid)
             {
-                db.Entry(staff).State = EntityState.Modified;
+                if (IsDuplicateStaff(staff))
+                {
+                    ModelState.AddModelError("", "A staff with the same name and birthday already exists!");
+                    return View(staff);
+                }
+                staffToUpdate.FullName = staff.FullName;
+                staffToUpdate.Gender = staff.Gender;
+                staffToUpdate.Birthday = staff.Birthday;
+                staffToUpdate.Address = staff.Address;
+                staffToUpdate.StartDate = staff.StartDate;
+
+                if (image != null && image.ContentLength > 0)
+                {
+                    staffToUpdate.Image = new byte[image.ContentLength];
+                    image.InputStream.Read(staffToUpdate.Image, 0, image.ContentLength);
+                }
+
+                db.Entry(staffToUpdate).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            return View(staff);
+
+            return View(staffToUpdate);
         }
+
 
         // GET: Staffs/Delete/5
         public ActionResult Delete(int? id)

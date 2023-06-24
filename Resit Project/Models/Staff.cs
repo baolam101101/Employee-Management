@@ -8,11 +8,15 @@ namespace Resit_Project.Models
 {
     public class Staff
     {
+        public Staff()
+        {
+            Works = new HashSet<Work>();
+        }
         [Key]
         public int StaffId { get; set; }
         [Required]
+        [StringLength(50,MinimumLength = 10)]
         public string FullName { get; set; }
-        [Required]
         public Gender Gender { get; set; }
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
@@ -23,6 +27,7 @@ namespace Resit_Project.Models
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime StartDate { get; set; }
         public byte[] Image { get; set; }
+        public virtual ICollection<Work> Works { get; set; }
     }
 
     public enum Gender

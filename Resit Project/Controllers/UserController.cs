@@ -2,6 +2,7 @@
 using Resit_Project.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -18,6 +19,10 @@ namespace Resit_Project.Controllers
         public ActionResult Index()
         {
             IEnumerable<ApplicationUser> model = context.Users.AsEnumerable();
+            var users = context.Roles.AsNoTracking()
+                .Include(w => w.Users)
+                .OrderByDescending(x => x.Id).ToList();
+
             return View(model);
         }
         public ActionResult Edit(string Id)
