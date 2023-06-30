@@ -13,7 +13,7 @@
         <h2>@ViewBag.Title</h2>
 
         <hr />
-        @Html.ActionLink("Register", "Register", "Account")
+        @Html.ActionLink("Register", "Register", "Account", new {area =""}, new {@class ="btn btn-primary"})
 
         <br /><br />
 
@@ -33,9 +33,9 @@
                         <td>@item.UserName</td>
                         <td>@item.FullName</td>
                         <td>
-                            @Html.ActionLink("Edit", "Edit", new { Id = item.Id }, null) |
-                            @Html.ActionLink("Edit Role", "Edit Role", new { Id = item.Id }, null) |
-                            @Html.ActionLink("Delete", "Delete", new { Id = item.Id }, null)
+                            @*@Html.ActionLink("Edit", "Edit", new { Id = item.Id }, null) |
+                            @Html.ActionLink("Edit Role", "Edit Role", new { Id = item.Id }, null) |*@
+                            @Html.ActionLink("Delete", "Delete", new { Id = item.Id }, new {@class="btn btn-danger"})
                         </td>
                     </tr>
                 }

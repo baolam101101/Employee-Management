@@ -1,4 +1,4 @@
-﻿namespace Resit_Project.Migrations
+﻿    namespace Resit_Project.Migrations
 {
     using System;
     using System.Data.Entity;

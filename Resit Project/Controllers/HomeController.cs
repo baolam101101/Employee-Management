@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace Resit_Project.Controllers
 {
+    [Authorize(Roles = "Admin, Staff")]
     public class HomeController : Controller
     {
         public ActionResult Index()

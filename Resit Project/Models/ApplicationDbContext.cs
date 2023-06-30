@@ -27,5 +27,7 @@ namespace Resit_Project.Models
         public DbSet<PriceList> PriceLists { get; set; }
 
         public DbSet<Work> Works { get; set; }
+        public DbSet<Dashboard> Dashboards { get; set; }
+
     }
 }

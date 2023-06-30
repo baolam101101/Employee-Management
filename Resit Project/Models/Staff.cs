@@ -26,8 +26,11 @@ namespace Resit_Project.Models
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime StartDate { get; set; }
+        public int TotalPrice { get; set; }
+        public int TotalSalary { get; set; }
         public byte[] Image { get; set; }
         public virtual ICollection<Work> Works { get; set; }
+        public virtual ICollection<Dashboard> Dashboards { get; set; }
     }
 
     public enum Gender

@@ -22,8 +22,11 @@ namespace Resit_Project.Models
         [Required]
         public int Price { get; set; }
         public byte[] Image { get; set; }
+        public int Quantity { get; set; }
 
         public virtual ICollection<Category> Categories { get; set; }
+        public virtual ICollection<Dashboard> Dashboards { get; set; }
+
     }
     public enum Machine
     {

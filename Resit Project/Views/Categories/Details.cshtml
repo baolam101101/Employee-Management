@@ -4,10 +4,64 @@
     ViewBag.Title = "Details";
 }
 
-<h2 class="text-center">Details Code</h2>
-<h3 class="text-center">
-    @Html.DisplayFor(model => model.Name)
-</h3>
+<div class="page-header">
+    <div class="header-sub-title">
+        <nav class="breadcrumb breadcrumb-dash">
+            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "breadcrumb-item" })
+            @Html.ActionLink("Category List", "Index", "Categories", new { area = "" }, new { @class = "breadcrumb-item" })
+            <span class="breadcrumb-item active">Details</span>
+        </nav>
+    </div>
+</div>
+
+<div class="card-body">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-center">Details</h3>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-2">
+                    <a>Code</a>
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+                <dt class="col-sm-2">
+                    <a>Month / Year</a>
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Month) / @Html.DisplayFor(model => model.Year)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Quantity)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Quantity)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Price)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Price)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Description)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Description)
+                </dd>
+            </dl>
+            <p>
+                @Html.ActionLink("Add Stages", "AddStage", new { id = Model.CateId }, new { @class = "btn btn-info" })
+                @Html.ActionLink("Add Staff", "Create", "Works", new { id = Model.CateId }, new { @class = "btn btn-secondary" })
+                @Html.ActionLink("Back to List", "Index", new { area = "" }, new { @class = "btn btn-primary" })
+            </p>
+        </div>
+    </div>
+</div>
+
+<br />
 <div>
     <table class="table table-bordered">
         <thead>
@@ -21,27 +75,29 @@
                 <th>
                     <a>Price</a>
                 </th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var price in ViewBag.priceLists)
             {
-                <tr>
+                <tr @(price.Quantity == ViewBag.QuantityThreshold ? "style=\"color: green;\"" : "")>
                     <td>
                         @price.Stage
                     </td>
                     <td>
                         @price.Machine
                     </td>
+
+                    <td>@price.Price.ToString("#,##0") VND</td>
+
                     <td>
-                        @price.Price.ToString("#,##0") ¢
+                        @Html.ActionLink("Delete", "DeletePrice", new { priceId = price.PricelistId, cateId = Model.CateId },
+                   new { onclick = "return confirm('Are you sure you want to delete this stage?');", @class = "btn btn-primary" })
+                        @Html.ActionLink("Details Work", "Details", "Works", new { priceListId = price.PricelistId, id = Model.CateId }, new { @class = "btn btn-primary", @id = "details-work-btn" })
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.CateId }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>

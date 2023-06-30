@@ -15,14 +15,44 @@ namespace Resit_Project.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: Categories
-        public ActionResult Index()
+
+        [Authorize(Roles = "Admin, Staff")]
+        public ActionResult Index(string searchString, string categoryMonth, int? categoryYear)
         {
-            var categories = db.Categories.Include(c => c.Pricelist);
+            var categories = from c in db.Categories select c;
+
+            // Lọc theo category name
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                categories = categories.Where(c => c.Name.Contains(searchString));
+            }
+
+            // Lọc theo tháng
+            if (!String.IsNullOrEmpty(categoryMonth))
+            {
+                categories = categories.Where(c => c.Month.ToString() == categoryMonth);
+            }
+
+            // Lọc theo năm
+            if (categoryYear != null)
+            {
+                categories = categories.Where(c => c.Year == categoryYear);
+            }
+
             return View(categories.ToList());
         }
 
-        // GET: Categories/Details/5
+        [Authorize(Roles = "Admin, Staff")]
+        public ActionResult Filter(int year, Month month)
+        {
+            var categories = db.Categories
+                                .Where(c => c.Year == year && c.Month == month)
+                                .Include(c => c.Pricelist)
+                                .ToList();
+            return View(categories);
+        }
+
+        [Authorize(Roles = "Admin, Staff")]
         public async Task<ActionResult> Details(int? id)
         {
             if (id == null)
@@ -41,6 +71,8 @@ namespace Resit_Project.Controllers
             }
 
             ViewBag.priceLists = priceLists;
+
+            ViewBag.QuantityThreshold = category.Quantity;
             if (category == null)
             {
                 return HttpNotFound();
@@ -48,11 +80,10 @@ namespace Resit_Project.Controllers
             return View(category);
         }
 
-        // GET: Categories/Create
+
+        [Authorize(Roles = "Admin")]
         public ActionResult Create()
         {
-            /*ViewBag.PricelistId = new SelectList(db.PriceLists, "PricelistId", "Stage");*/
-
             var priceLists = db.PriceLists.ToList();
 
             List<SelectListItem> myList = new List<SelectListItem>();
@@ -66,8 +97,9 @@ namespace Resit_Project.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "CateId,Name,PricelistId,PricelistIdList")] Category category, int[] PricelistId)
+        public ActionResult Create([Bind(Include = "CateId,Name,Month,Year,PricelistId,Quantity,Description,Price,TotalPrice")] Category category, int[] PricelistId)
         {
             if (PricelistId == null || PricelistId.Length == 0)
             {
@@ -91,6 +123,14 @@ namespace Resit_Project.Controllers
             {
                 category.Pricelist = priceList;
                 category.PricelistIdList = string.Join(",", PricelistId);
+
+                // Calculate the total price of stages in the PriceList
+                var totalStagesPrice = db.PriceLists
+                    .Where(m => PricelistId.Contains(m.PricelistId))
+                    .Sum(m => m.Price * category.Quantity);
+
+                // Calculate the total price for the category
+                category.Price = totalStagesPrice;
             }
 
             if (ModelState.IsValid)
@@ -112,68 +152,129 @@ namespace Resit_Project.Controllers
             return View(category);
         }
 
-
-        // GET: Categories/Edit/5
-        public async Task<ActionResult> Edit(int? id)
+        [Authorize(Roles = "Admin")]
+        public ActionResult Edit(int id)
         {
+            var category = db.Categories.Find(id);
+
             var priceLists = db.PriceLists.ToList();
-            List<SelectListItem> list = new List<SelectListItem>();
+            List<SelectListItem> myList = new List<SelectListItem>();
             foreach (var price in priceLists)
             {
-                list.Add(new SelectListItem { Text = price.Stage, Value = price.PricelistId.ToString() });
+                myList.Add(new SelectListItem { Text = price.Stage, Value = price.PricelistId.ToString() });
             }
-            ViewBag.PricelistsId = list;
 
-            var category = await db.Categories.Include(c => c.Pricelist).FirstOrDefaultAsync(m => m.CateId == id);
-            int[] PriceIdList = category.PricelistIdList.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
-            List<PriceList> priceList = new List<PriceList>();
+            ViewBag.PricelistId = myList;
+            return View(category);
+        }
 
-            foreach (var PriceId in PriceIdList)
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(Category category)
+        {
+            if (ModelState.IsValid)
             {
-                var PriceDetails = db.PriceLists.Where(c => c.PricelistId == PriceId).FirstOrDefault();
-                priceList.Add(PriceDetails);
-            }
-            ViewBag.priceLists = priceList;
+                var existingCategory = db.Categories.Find(category.CateId);
+                existingCategory.Name = category.Name;
+                existingCategory.Month = category.Month;
+                existingCategory.Year = category.Year;
+                existingCategory.Description = category.Description;
 
+                db.Entry(existingCategory).State = EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            var priceLists = db.PriceLists.ToList();
+            List<SelectListItem> myList = new List<SelectListItem>();
+            foreach (var price in priceLists)
+            {
+                myList.Add(new SelectListItem { Text = price.Stage, Value = price.PricelistId.ToString() });
+            }
+
+            ViewBag.PricelistId = myList;
+            return View(category);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult AddStage(int? id)
+        {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
+            Category category = db.Categories.Find(id);
             if (category == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.PricelistId = new SelectList(db.PriceLists, "PricelistId", "Stage", category.PricelistId);
+
+            var priceLists = db.PriceLists.ToList();
+
+            var priceListIds = category.PricelistIdList.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
+
+            var availablePriceLists = priceLists.Where(m => !priceListIds.Contains(m.PricelistId)).ToList();
+
+            ViewBag.PricelistId = new SelectList(availablePriceLists, "PricelistId", "Stage");
+
             return View(category);
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "CateId,Name,PricelistId,PricelistIdList")] Category category, int[] PricelistId)
+        public ActionResult AddStage(int id, int[] PricelistId, int Quantity)
         {
-            var stage = "";
-            PriceList priceList = new PriceList();
-            foreach (var id in PricelistId)
+            var category = db.Categories.Find(id);
+            if (category == null)
             {
-                stage = db.PriceLists.Where(m => m.PricelistId == id).FirstOrDefault().Stage.ToString();
-                priceList = db.PriceLists.Where(m => m.PricelistId == id).FirstOrDefault();
-
+                return HttpNotFound();
             }
-            category.Pricelist = priceList;
-            category.PricelistIdList = string.Join(",", PricelistId);
 
-            if (ModelState.IsValid)
+            // Convert the PricelistIdList to an array of integers
+            int[] existingPriceIdList = category.PricelistIdList.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+
+            // Get the PriceList for the selected PricelistId values
+            List<PriceList> priceLists = null;
+            if (PricelistId != null)
             {
-                db.Entry(category).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                priceLists = db.PriceLists.Where(p => PricelistId.Contains(p.PricelistId)).ToList();
             }
-            ViewBag.PricelistId = new SelectList(db.PriceLists, "PricelistId", "Stage", category.PricelistId);
-            return View(category);
+
+            // Calculate the total price of the existing PricelistId items
+            var totalExistingPrice = db.PriceLists.Where(m => existingPriceIdList.ToList().Contains(m.PricelistId)).Sum(m => m.Price);
+
+            // Add new PricelistId to the array
+            var newPriceIdList = existingPriceIdList.Concat(PricelistId ?? new int[0]).Distinct().ToArray();
+
+            // Check if the PricelistIdList has been modified
+            bool isModified = !existingPriceIdList.SequenceEqual(newPriceIdList);
+
+            // Calculate the total price of all the PricelistId items
+            var totalNewPrice = db.PriceLists.Where(m => newPriceIdList.Contains(m.PricelistId)).Sum(m => m.Price);
+
+            // Update the Category's Price and Quantity properties
+            category.Quantity = Quantity;
+            if (isModified)
+            {
+                category.Price = totalNewPrice * Quantity;
+                category.PricelistIdList = string.Join(",", newPriceIdList);
+            }
+            else
+            {
+                category.Price = totalExistingPrice * Quantity;
+            }
+
+            db.Entry(category).State = EntityState.Modified;
+            db.SaveChanges();
+
+            return RedirectToAction("Details", new { id = category.CateId });
         }
 
-        // GET: Categories/Delete/5
+
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -188,7 +289,7 @@ namespace Resit_Project.Controllers
             return View(category);
         }
 
-        // POST: Categories/Delete/5
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
@@ -207,5 +308,32 @@ namespace Resit_Project.Controllers
             }
             base.Dispose(disposing);
         }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> DeletePrice(int priceId, int cateId)
+        {
+            var category = await db.Categories.Include(c => c.Pricelist).FirstOrDefaultAsync(m => m.CateId == cateId);
+            if (category == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Remove the PriceId from the PricelistIdList
+            category.PricelistIdList = String.Join(",", category.PricelistIdList.Split(',').Where(x => x != priceId.ToString()));
+
+            // Calculate the total price of stages in the updated PricelistIdList
+            int[] updatedPriceIdList = category.PricelistIdList.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+            var totalStagesPrice = db.PriceLists.Where(m => updatedPriceIdList.Contains(m.PricelistId)).Sum(m => m.Price);
+
+            // Calculate the new Price for the Category
+            category.Price = category.Quantity * totalStagesPrice;
+
+            db.Entry(category).State = EntityState.Modified;
+            db.SaveChanges();
+
+            return RedirectToAction("Details", new { id = category.CateId });
+        }
+
+
     }
 }

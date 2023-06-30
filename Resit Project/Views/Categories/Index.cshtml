@@ -4,32 +4,108 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<div class="page-header">
+    <div class="header-sub-title">
+        <nav class="breadcrumb breadcrumb-dash">
+            @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "breadcrumb-item" })
+            <span class="breadcrumb-item active">Category List</span>
+        </nav>
+    </div>
+</div>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            Code
-        </th>
-        <th>
-            Action
-        </th>
-    </tr>
+<div class="card">
+    <div class="card-body">
+        <h3 class="text-center">Category List</h3>
+        <div class="row m-b-30">
+            <div class="col-lg-6 text-right">
+                @Html.ActionLink("Create New", "Create", "Categories", new { area = "" }, new { @class = "btn btn-primary" })
+            </div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Name)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.CateId }) |
-            @Html.ActionLink("Details", "Details", new { id=item.CateId }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.CateId })
-        </td>
-    </tr>
-}
+            @using (Html.BeginForm("Index", "Categories", FormMethod.Get))
+            {
+                <div class="form-group">
+                    <label for="categoryMonth">Month:</label>
+                    <select class="form-control-sm" name="categoryMonth" id="categoryMonth">
+                        <option value="">All</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
 
-</table>
+                    <label for="categoryYear">Year:</label>
+                    <input type="text" class="form-control-sm" name="categoryYear" id="categoryYear" placeholder="Year"/>
+
+                    <label for="searchString">Search:</label>
+                    <input type="text" class="form-control-sm" name="searchString" id="searchString" placeholder="Code"/>
+
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+                <div class="form-group">
+
+                </div>
+                <div class="form-group">
+
+                </div>
+
+            }
+
+        </div>
+        <br />
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Code</th>
+                        <th>Month / Year</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Date created</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @item.Name
+                                </td>
+                                <td>
+                                    @item.Month / @item.Year
+                                </td>
+                                <td>@item.Description</td>
+                                <td>
+                                    @item.Quantity
+                                </td>
+                                <td>
+                                    @item.Price.ToString("#,##0") VND
+                                </td>
+                                <td>
+                                    @item.Created
+                                </td>
+                                <td>
+                                    @Html.ActionLink("Edit", "Edit", new { id = item.CateId }, new {@class="btn btn-info"}) 
+                                    @Html.ActionLink("Details", "Details", new { id = item.CateId }, new { @class = "btn btn-success" }) 
+                                    @Html.ActionLink("Delete", "Delete", new { id = item.CateId }, new { @class = "btn btn-danger" })
+                                </td>
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

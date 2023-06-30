@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -34,7 +35,6 @@ namespace Resit_Project.Controllers
             }
             return View(priceList);
         }
-
         private bool PricelistDuplicate(PriceList priceList)
         {
             return db.PriceLists.Any(p => p.Stage == priceList.Stage && p.Machine == priceList.Machine);
@@ -58,6 +58,11 @@ namespace Resit_Project.Controllers
 
             if (ModelState.IsValid)
             {
+                if (priceList.Image == null)
+                {
+                    ModelState.AddModelError("", "Please upload an image");
+                    return View(priceList);
+                }
                 if (PricelistDuplicate(priceList))
                 {
                     ModelState.AddModelError("", "A stage of using this machine already exists!");
@@ -105,6 +110,11 @@ namespace Resit_Project.Controllers
 
             if (ModelState.IsValid)
             {
+                if (priceList.Image == null)
+                {
+                    ModelState.AddModelError("", "Please upload an image");
+                    return View(priceList);
+                }
                 if (PricelistDuplicate(priceList))
                 {
                     ModelState.AddModelError("", "A stage of using this machine already exists!");
@@ -127,7 +137,7 @@ namespace Resit_Project.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View(priceListToUpdate); // Pass the PriceList object to the view
+            return View(priceListToUpdate);
         }
 
 

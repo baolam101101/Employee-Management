@@ -30,13 +30,18 @@
                 @Html.ActionLink("Create New", "Create", "Staffs", new { area = "" }, new { @class = "btn btn-primary" })
             </div>
         </div>
+        <br />
         <div class="table-responsive">
             <table class="table table-hover e-commerce-table">
-                <thead>
+                <thead class="table-secondary">
                     <tr>
                         <th>Id</th>
                         <th>FullName</th>
                         <th>Gender</th>
+                        <th>Birthday</th>
+                        <th>Address</th>
+                        <th>StartDate</th>
+                        <th>Salary</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -56,6 +61,10 @@
                                 <td>
                                     @item.Gender
                                 </td>
+                                <td>@item.Birthday.ToShortDateString()</td>
+                                <td>@item.Address</td>
+                                <td>@item.StartDate.ToShortDateString()</td>
+                                <td>@item.TotalSalary</td>
                                 <td>
                                     @Html.ActionLink("Edit", "Edit", new { id = item.StaffId }, new { @class = "btn btn-sm btn-success rounded-0" })
                                     @Html.ActionLink("Details", "Details", new { id = item.StaffId }, new { @class = "btn btn-sm btn-info rounded-0" })

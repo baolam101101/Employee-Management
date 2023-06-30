@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml.Linq;
 using Resit_Project.Models;
 
 namespace Resit_Project.Controllers
@@ -17,12 +20,31 @@ namespace Resit_Project.Controllers
         // GET: Staffs
         public ActionResult Index()
         {
-            return View(db.Staffs.ToList());
+            var staffs = db.Staffs.ToList();
+
+            foreach (var staff in staffs)
+            {
+                int totalSalary = staff.Works.Sum(w => w.Price);
+                staff.TotalSalary = totalSalary;
+
+                db.Entry(staff).State = EntityState.Modified;
+                db.SaveChanges();
+            }
+
+            return View(staffs);
         }
 
-        // GET: Staffs/Details/5
-        public ActionResult Details(int? id)
+
+        public ActionResult Details(int? id, string name, int? month, int? year)
         {
+            var works = db.Works
+                .Include(w => w.Category)
+                .Where(w => w.StaffId == id
+                    && (string.IsNullOrEmpty(name) || w.Category.Name.Contains(name))
+                    && (!month.HasValue || w.DateCompleted.Month == month)
+                    && (!year.HasValue || w.DateCompleted.Year == year))
+                .ToList();
+
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -32,12 +54,34 @@ namespace Resit_Project.Controllers
             {
                 return HttpNotFound();
             }
+            /*var works = db.Works.Include(w => w.Category).Where(w => w.StaffId == id).ToList();*/
+
+            int totalPrice = works.Sum(w => w.Price);
+            staff.TotalPrice = totalPrice;
+
+            ViewBag.Name = name;
+            ViewBag.Month = month;
+            ViewBag.Year = year;
+            ViewBag.Works = works;
+
             return View(staff);
+        }
+
+        public ActionResult Filter(int id, string name, int? month, int? year)
+        {
+            var works = db.Works
+                .Include(w => w.Category)
+                .Where(w => w.StaffId == id
+                    && (string.IsNullOrEmpty(name) || w.Category.Name.Contains(name))
+                    && (!month.HasValue || w.DateCompleted.Month == month)
+                    && (!year.HasValue || w.DateCompleted.Year == year))
+                .ToList();
+            return View(works);
         }
 
         private bool IsDuplicateStaff(Staff staff)
         {
-            return db.Staffs.Any(s => s.FullName == staff.FullName && s.Birthday == staff.Birthday);
+            return db.Staffs.Any(s => s.StaffId != staff.StaffId && s.FullName == staff.FullName && s.Birthday == staff.Birthday);
         }
 
         // GET: Staffs/Create
@@ -58,6 +102,11 @@ namespace Resit_Project.Controllers
 
             if (ModelState.IsValid)
             {
+                if (staff.Image == null)
+                {
+                    ModelState.AddModelError("", "Please upload an image");
+                    return View(staff);
+                }
                 if (IsDuplicateStaff(staff))
                 {
                     ModelState.AddModelError("", "A staff with the same name and birthday already exists!");
