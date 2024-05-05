@@ -50,6 +50,24 @@
             <dd class="col-sm-4">
                 @Html.DisplayFor(model => model.StartDate)
             </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Phone)
+            </dt>
+            <dd class="col-sm-4">
+                @Html.DisplayFor(model => model.Phone)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Positions.Name)
+            </dt>
+            <dd class="col-sm-4">
+                @Html.DisplayFor(model => model.Positions.Name)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Positions.Salary)
+            </dt>
+            <dd class="col-sm-4">
+                @Html.DisplayFor(model => model.Positions.Salary)
+            </dd>
 
             <dd class="col-sm-10">
                 <img style="width:120px; height:100px;" class="img-responsive full-width" src="data:image/jpg;base64,@Convert.ToBase64String(Model.Image)" />
@@ -93,6 +111,7 @@
                 <th>Quantity</th>
                 <th>Price</th>
                 <th>Date Completed</th>
+                <th>Phone</th>
             </tr>
         </thead>
         <tbody>
@@ -104,6 +123,7 @@
                     <td>@work.Quantity</td>
                     <td>@work.Price</td>
                     <td>@work.DateCompleted.ToShortDateString()</td>
+                    <td>@work.Phone</td>
                 </tr>
             }
         </tbody>

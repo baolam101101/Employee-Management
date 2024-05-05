@@ -21,30 +21,12 @@ namespace Resit_Project.Controllers
         public ActionResult Index()
         {
             var staffs = db.Staffs.ToList();
-
-            foreach (var staff in staffs)
-            {
-                int totalSalary = staff.Works.Sum(w => w.Price);
-                staff.TotalSalary = totalSalary;
-
-                db.Entry(staff).State = EntityState.Modified;
-                db.SaveChanges();
-            }
-
             return View(staffs);
         }
 
 
         public ActionResult Details(int? id, string name, int? month, int? year)
         {
-            var works = db.Works
-                .Include(w => w.Category)
-                .Where(w => w.StaffId == id
-                    && (string.IsNullOrEmpty(name) || w.Category.Name.Contains(name))
-                    && (!month.HasValue || w.DateCompleted.Month == month)
-                    && (!year.HasValue || w.DateCompleted.Year == year))
-                .ToList();
-
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -54,29 +36,8 @@ namespace Resit_Project.Controllers
             {
                 return HttpNotFound();
             }
-            /*var works = db.Works.Include(w => w.Category).Where(w => w.StaffId == id).ToList();*/
-
-            int totalPrice = works.Sum(w => w.Price);
-            staff.TotalPrice = totalPrice;
-
-            ViewBag.Name = name;
-            ViewBag.Month = month;
-            ViewBag.Year = year;
-            ViewBag.Works = works;
 
             return View(staff);
-        }
-
-        public ActionResult Filter(int id, string name, int? month, int? year)
-        {
-            var works = db.Works
-                .Include(w => w.Category)
-                .Where(w => w.StaffId == id
-                    && (string.IsNullOrEmpty(name) || w.Category.Name.Contains(name))
-                    && (!month.HasValue || w.DateCompleted.Month == month)
-                    && (!year.HasValue || w.DateCompleted.Year == year))
-                .ToList();
-            return View(works);
         }
 
         private bool IsDuplicateStaff(Staff staff)
@@ -87,12 +48,13 @@ namespace Resit_Project.Controllers
         // GET: Staffs/Create
         public ActionResult Create()
         {
+            ViewBag.PositionId = new SelectList(db.Positions, "PositionId", "Name");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "StaffId,FullName,Gender,Birthday,Address,StartDate")] Staff staff, HttpPostedFileBase image)
+        public ActionResult Create([Bind(Include = "StaffId,FullName,Gender,Birthday,Address,StartDate,Phone,PositionId")] Staff staff, HttpPostedFileBase image)
         {
             if (image != null && image.ContentLength > 0)
             {
@@ -117,7 +79,7 @@ namespace Resit_Project.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
+            ViewBag.PositionId = new SelectList(db.Positions, "PositionId", "Name");
             return View(staff);
         }
         // GET: Staffs/Edit/5
@@ -132,12 +94,13 @@ namespace Resit_Project.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.PositionId = new SelectList(db.Positions, "PositionId", "Name");
             return View(staff);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int? id, [Bind(Include = "StaffId,FullName,Gender,Birthday,Address,StartDate")] Staff staff, HttpPostedFileBase image)
+        public ActionResult Edit(int? id, [Bind(Include = "StaffId,FullName,Gender,Birthday,Address,StartDate,Phone,PositionId")] Staff staff, HttpPostedFileBase image)
         {
             if (id == null)
             {
@@ -162,6 +125,9 @@ namespace Resit_Project.Controllers
                 staffToUpdate.Birthday = staff.Birthday;
                 staffToUpdate.Address = staff.Address;
                 staffToUpdate.StartDate = staff.StartDate;
+                staffToUpdate.Phone = staff.Phone;
+                staffToUpdate.PositionId = staff.PositionId;
+
 
                 if (image != null && image.ContentLength > 0)
                 {
@@ -173,7 +139,7 @@ namespace Resit_Project.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
+            ViewBag.PositionId = new SelectList(db.Positions, "PositionId", "Name");
             return View(staffToUpdate);
         }
 

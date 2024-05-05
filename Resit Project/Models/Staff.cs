@@ -8,10 +8,6 @@ namespace Resit_Project.Models
 {
     public class Staff
     {
-        public Staff()
-        {
-            Works = new HashSet<Work>();
-        }
         [Key]
         public int StaffId { get; set; }
         [Required]
@@ -27,10 +23,10 @@ namespace Resit_Project.Models
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime StartDate { get; set; }
         public int TotalPrice { get; set; }
-        public int TotalSalary { get; set; }
+        public int Phone { get; set; }
+        public int PositionId { get; set; }
         public byte[] Image { get; set; }
-        public virtual ICollection<Work> Works { get; set; }
-        public virtual ICollection<Dashboard> Dashboards { get; set; }
+        public virtual Position Positions { get; set; }
     }
 
     public enum Gender

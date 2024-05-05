@@ -22,15 +22,15 @@
             if (!context.Roles.Any())
             {
                 CreateRole(context, "Admin");
-                CreateRole(context, "Staff");
+                CreateRole(context, "HR");
             }
 
             if (!context.Users.Any())
             {
                 CreateUser(context, "admin@gmail.com", "1", "Admin");
-                CreateUser(context, "staff@gmail.com", "1", "Staff");
+                CreateUser(context, "hr@gmail.com", "1", "HR");
                 AddUserToRole(context, "admin@gmail.com", "Admin");
-                AddUserToRole(context, "staff@gmail.com", "Staff");
+                AddUserToRole(context, "hr@gmail.com", "HR");
             }
         }
 

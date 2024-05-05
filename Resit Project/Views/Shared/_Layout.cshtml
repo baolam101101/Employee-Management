@@ -25,15 +25,13 @@
                         {
                             <li>@Html.ActionLink("Manage Role", "Index", "Role", new { area = "" }, new { @class = "nav-link" })</li>
                             <li>@Html.ActionLink("Manage User", "Index", "User", new { area = "" }, new { @class = "nav-link" })</li>
+                            <li>@Html.ActionLink("Manage Position", "Index", "Positions", new { area = "" }, new { @class = "nav-link" })</li>
                             <li>@Html.ActionLink("Manage Staff", "Index", "Staffs", new { area = "" }, new { @class = "nav-link" })</li>
-                            <li>@Html.ActionLink("Category", "Index", "Categories", new { area = "" }, new { @class = "nav-link" })</li>
-                            <li>@Html.ActionLink("Price Lists", "Index", "PriceLists", new { area = "" }, new { @class = "nav-link" })</li>
-                            <li>@Html.ActionLink("Dashboard", "Index", "Dashboard", new { area = "" }, new { @class = "nav-link" })</li>
 
                         }
-                        if (User.IsInRole("Staff"))
+                        if (User.IsInRole("HR"))
                         {
-                            <li>@Html.ActionLink("Category", "Index", "Categories", new { area = "" }, new { @class = "nav-link" })</li>
+                            <li>@Html.ActionLink("Manage Staff", "Index", "Staffs", new { area = "" }, new { @class = "nav-link" })</li>
                         }
                     }
                 </ul>

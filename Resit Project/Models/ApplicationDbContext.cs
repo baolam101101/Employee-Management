@@ -20,14 +20,9 @@ namespace Resit_Project.Models
             return new ApplicationDbContext();
         }
 
-        public DbSet<Category> Categories { get; set; }
 
         public DbSet<Staff> Staffs { get; set; }
 
-        public DbSet<PriceList> PriceLists { get; set; }
-
-        public DbSet<Work> Works { get; set; }
-        public DbSet<Dashboard> Dashboards { get; set; }
-
+        public System.Data.Entity.DbSet<Resit_Project.Models.Position> Positions { get; set; }
     }
 }
